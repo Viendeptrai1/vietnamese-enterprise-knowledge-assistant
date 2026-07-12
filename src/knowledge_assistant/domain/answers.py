@@ -8,6 +8,6 @@ class AnswerResponse(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     answer: str
-    citations: list[Citation]
-    retrieved_chunks: list[DocumentChunk]
+    citations: tuple[Citation, ...]
+    retrieved_chunks: tuple[DocumentChunk, ...]
     latency_ms: float

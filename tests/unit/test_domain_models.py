@@ -69,8 +69,104 @@ def test_document_chunk_requires_stable_chunk_id() -> None:
         )
 
 
-def test_domain_models_are_immutable() -> None:
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("chunk_id", ""),
+        ("ordinal", -1),
+    ],
+)
+def test_document_chunk_rejects_invalid_identity_values(field: str, value: object) -> None:
+    with pytest.raises(ValidationError):
+        DocumentChunk(
+            **{
+                "chunk_id": "doc-123:chunk-0001",
+                "document_id": "doc-123",
+                "content": "Nội dung một đoạn",
+                "metadata": metadata(),
+                "ordinal": 1,
+                field: value,
+            }
+        )
+
+
+def test_document_chunk_rejects_metadata_document_id_mismatch() -> None:
+    with pytest.raises(ValidationError):
+        DocumentChunk(
+            chunk_id="doc-456:chunk-0001",
+            document_id="doc-456",
+            content="Nội dung một đoạn",
+            metadata=metadata(),
+            ordinal=1,
+        )
+
+
+def test_domain_models_and_nested_models_are_immutable() -> None:
     document_metadata = metadata()
+    document = NormalizedDocument(metadata=document_metadata, content="Nội dung chuẩn hóa")
+    citation = Citation(
+        chunk_id="doc-123:chunk-0001",
+        source_path=document_metadata.source_path,
+        page_number=document_metadata.page_number,
+        excerpt="Nội dung một đoạn",
+    )
+    chunk = DocumentChunk(
+        chunk_id="doc-123:chunk-0001",
+        document_id=document_metadata.document_id,
+        content="Nội dung một đoạn",
+        metadata=document_metadata,
+        ordinal=1,
+    )
+    answer = AnswerResponse(
+        answer="Câu trả lời",
+        citations=[citation],
+        retrieved_chunks=[chunk],
+        latency_ms=12.5,
+    )
+
+    for model, field, value in [
+        (document_metadata, "title", "Changed"),
+        (document, "content", "Changed"),
+        (citation, "excerpt", "Changed"),
+        (chunk, "content", "Changed"),
+        (answer, "answer", "Changed"),
+    ]:
+        with pytest.raises(ValidationError):
+            setattr(model, field, value)
 
     with pytest.raises(ValidationError):
-        document_metadata.title = "Changed"
+        document.metadata.title = "Changed"
+    with pytest.raises(ValidationError):
+        chunk.metadata.title = "Changed"
+    with pytest.raises(ValidationError):
+        answer.retrieved_chunks[0].content = "Changed"
+
+
+def test_answer_response_collections_are_immutable() -> None:
+    document_metadata = metadata()
+    chunk = DocumentChunk(
+        chunk_id="doc-123:chunk-0001",
+        document_id=document_metadata.document_id,
+        content="Nội dung một đoạn",
+        metadata=document_metadata,
+        ordinal=1,
+    )
+    citation = Citation(
+        chunk_id=chunk.chunk_id,
+        source_path=document_metadata.source_path,
+        page_number=document_metadata.page_number,
+        excerpt=chunk.content,
+    )
+    answer = AnswerResponse(
+        answer="Câu trả lời",
+        citations=[citation],
+        retrieved_chunks=[chunk],
+        latency_ms=12.5,
+    )
+
+    assert isinstance(answer.citations, tuple)
+    assert isinstance(answer.retrieved_chunks, tuple)
+    with pytest.raises(TypeError):
+        answer.citations[0] = citation
+    with pytest.raises((AttributeError, TypeError)):
+        answer.retrieved_chunks.append(chunk)

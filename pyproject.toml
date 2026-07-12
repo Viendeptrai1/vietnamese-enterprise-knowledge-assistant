@@ -5,6 +5,7 @@ description = ""
 authors = ["iusztinpaul <p.b.iusztin@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [{ include = "knowledge_assistant", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "~3.11"
@@ -56,6 +57,10 @@ s3fs = ">2022.3.0"
 aws-profile-manager = "^0.7.3"
 kubernetes = "^30.1.0"
 sagemaker-huggingface-inference-toolkit = "^2.4.0"
+
+
+[tool.poetry.scripts]
+knowledge-assistant = "cli.main:app"
 
 
 [build-system]

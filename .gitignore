@@ -172,6 +172,11 @@ output/
 sagemaker_*.json
 run_ids.txt
 
+# Knowledge assistant runtime data
+data/documents/
+data/indexes/
+.cache/mlx/
+
 # Virtual environments
 *_venv
 *_myenv

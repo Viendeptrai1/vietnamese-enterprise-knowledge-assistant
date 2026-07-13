@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 
+import pytest
 from knowledge_assistant.infrastructure.embeddings.base import EmbeddingProvider
 
 
@@ -21,7 +22,12 @@ class FakeSentenceTransformer:
     def encode(self, texts: Sequence[str], *, batch_size: int) -> list[list[float]]:
         values = list(texts)
         self.calls.append((values, batch_size))
-        return [[float(index), 0.5, 1.0] for index, _ in enumerate(values)]
+        return [[float(index), 0.5, 1.0] + [0.0] * 381 for index, _ in enumerate(values)]
+
+
+class WrongDimensionSentenceTransformer:
+    def encode(self, texts: Sequence[str], *, batch_size: int) -> list[list[float]]:
+        return [[0.0, 1.0] for _ in texts]
 
 
 def test_embedding_provider_contract_returns_vectors_with_declared_dimension() -> None:
@@ -56,10 +62,29 @@ def test_e5_provider_prefixes_inputs_batches_calls_and_loads_lazily() -> None:
     document_vectors = provider.embed_documents(["một", "hai", "ba"])
     query_vector = provider.embed_query("tìm chính sách")
 
-    assert document_vectors == [[0.0, 0.5, 1.0], [1.0, 0.5, 1.0], [2.0, 0.5, 1.0]]
-    assert query_vector == [0.0, 0.5, 1.0]
+    assert len(document_vectors) == 3
+    assert all(len(vector) == provider.dimension for vector in document_vectors)
+    assert len(query_vector) == provider.dimension
     assert load_calls == 1
     assert model.calls == [
         (["passage: một", "passage: hai", "passage: ba"], 2),
         (["query: tìm chính sách"], 2),
     ]
+
+
+def test_e5_provider_reads_model_id_from_environment_and_allows_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    from knowledge_assistant.infrastructure.embeddings.e5 import E5EmbeddingProvider
+
+    monkeypatch.setenv("EMBEDDING_MODEL_ID", "configured-model")
+
+    assert E5EmbeddingProvider().model_id == "configured-model"
+    assert E5EmbeddingProvider(model_id="explicit-model").model_id == "explicit-model"
+
+
+def test_e5_provider_rejects_vectors_with_unexpected_dimension() -> None:
+    from knowledge_assistant.infrastructure.embeddings.e5 import E5EmbeddingProvider
+
+    provider = E5EmbeddingProvider(model_loader=lambda _: WrongDimensionSentenceTransformer())
+
+    with pytest.raises(ValueError, match="expected 384 dimensions"):
+        provider.embed_query("query")

@@ -27,3 +27,13 @@
 ## Commit
 
 - `7e0ab9b feat: add deterministic chunking and multilingual embeddings`
+
+## Review Fixes
+
+- Replaced non-overlapping oversized character slices with fixed-stride windows using `max_characters - overlap_characters`. Fallback chunks now prove suffix-to-prefix overlap and remain within the configured maximum, including the final short window.
+- Added regression coverage for paragraph packing, oversized fallback overlap and bounds, deterministic output, document identity, source/page metadata, and content-hash preservation.
+- `E5EmbeddingProvider` now resolves its default model from `EMBEDDING_MODEL_ID` at construction time, falling back to `intfloat/multilingual-e5-small`; an explicit `model_id` still takes precedence. Model loading remains lazy.
+- Added vector-width validation against the declared 384-dimensional E5 contract and an isolated fake-model test for the failure case. Tests use injected loaders and never download a model.
+- Focused verification: `poetry run pytest tests/unit/test_chunking.py tests/unit/test_embeddings.py -q` — 8 passed.
+- Full unit verification: `poetry run pytest -q` — 25 passed with 5 pre-existing SWIG deprecation warnings.
+- Static verification: focused Ruff check, Ruff format check, and `git diff --check` passed.

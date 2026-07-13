@@ -27,6 +27,15 @@ def test_chunker_preserves_identity_and_source_metadata() -> None:
     assert [chunk.ordinal for chunk in chunks] == [0, 1]
     assert all(chunk.metadata.source_path == "handbook/policy.md" for chunk in chunks)
     assert all(chunk.metadata.page_number == 7 for chunk in chunks)
+    assert all(chunk.metadata.content_hash == "sha256:content" for chunk in chunks)
+
+
+def test_chunker_packs_paragraphs_until_the_configured_limit() -> None:
+    from knowledge_assistant.application.ingestion.chunking import Chunker
+
+    chunks = Chunker(max_characters=30, overlap_characters=0).chunk(document("one two\n\nthree four\n\nfive six"))
+
+    assert [chunk.content for chunk in chunks] == ["one two\n\nthree four\n\nfive six"]
 
 
 def test_chunker_is_deterministic_and_respects_maximum_characters() -> None:
@@ -44,3 +53,14 @@ def test_chunker_is_deterministic_and_respects_maximum_characters() -> None:
     assert [chunk.chunk_id for chunk in first_run] == [chunk.chunk_id for chunk in second_run]
     assert [chunk.content for chunk in first_run] == [chunk.content for chunk in second_run]
     assert all(len(chunk.content) <= 35 for chunk in first_run)
+
+
+def test_chunker_overlapping_character_fallback_preserves_suffix_and_prefix() -> None:
+    from knowledge_assistant.application.ingestion.chunking import Chunker
+
+    chunks = Chunker(max_characters=10, overlap_characters=3).chunk(document("abcdefghijklmnopqrst"))
+
+    assert [chunk.content for chunk in chunks] == ["abcdefghij", "hijklmnopq", "opqrst"]
+    assert chunks[0].content[-3:] == chunks[1].content[:3]
+    assert chunks[1].content[-3:] == chunks[2].content[:3]
+    assert all(len(chunk.content) <= 10 for chunk in chunks)

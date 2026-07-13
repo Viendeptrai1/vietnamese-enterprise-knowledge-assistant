@@ -59,12 +59,17 @@ class Chunker:
         return pieces
 
     def _character_pieces(self, text: str) -> list[str]:
-        return [text[start : start + self._max_characters] for start in range(0, len(text), self._max_characters)]
+        step = self._max_characters - self._overlap_characters
+        return [text[start : start + self._max_characters] for start in range(0, len(text), step)]
 
     def _pack(self, segments: list[str]) -> list[str]:
         contents: list[str] = []
         current = ""
         for segment in segments:
+            if current and self._overlap_characters and segment.startswith(current[-self._overlap_characters :]):
+                contents.append(current)
+                current = segment
+                continue
             candidate = f"{current}\n\n{segment}".strip() if current else segment
             if len(candidate) <= self._max_characters:
                 current = candidate

@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from knowledge_assistant.domain.answers import AnswerResponse
 from knowledge_assistant.domain.chunks import DocumentChunk
 from knowledge_assistant.domain.documents import DocumentMetadata, NormalizedDocument
-from knowledge_assistant.domain.retrieval import Citation
+from knowledge_assistant.domain.retrieval import Citation, IndexSummary, RetrievedChunk
 
 
 def metadata() -> DocumentMetadata:
@@ -170,3 +170,22 @@ def test_answer_response_collections_are_immutable() -> None:
         answer.citations[0] = citation
     with pytest.raises((AttributeError, TypeError)):
         answer.retrieved_chunks.append(chunk)
+
+
+def test_retrieval_domain_models() -> None:
+    document_metadata = metadata()
+    retrieved = RetrievedChunk(
+        chunk_id="doc-123:chunk-0001",
+        document_id=document_metadata.document_id,
+        content="Nội dung một đoạn",
+        metadata=document_metadata,
+        ordinal=1,
+        score=0.88,
+    )
+    summary = IndexSummary(total_documents=2, total_chunks=10, upserted_chunks=5)
+
+    assert isinstance(retrieved, DocumentChunk)
+    assert retrieved.score == 0.88
+    assert summary.upserted_chunks == 5
+    with pytest.raises(ValidationError):
+        IndexSummary(total_documents=-1, total_chunks=10, upserted_chunks=5)

@@ -5,7 +5,11 @@ description = ""
 authors = ["iusztinpaul <p.b.iusztin@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "knowledge_assistant", from = "src" }]
+packages = [
+    { include = "knowledge_assistant", from = "src" },
+    { include = "cli" },
+    { include = "api" },
+]
 
 [tool.poetry.dependencies]
 python = "~3.11"
@@ -21,6 +25,7 @@ torch = "2.2.2"
 pymupdf = "^1.24.10"
 python-docx = "^1.1.2"
 pydantic = "^2.8.2"
+typer = ">=0.12.0"
 
 # Digital data ETL
 selenium = "^4.21.0"
@@ -169,3 +174,6 @@ cmd = "poetry run zenml login --local"
 [tool.poe.tasks.test]
 cmd = "poetry run pytest tests/"
 env = { ENV_FILE = ".env.testing" }
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]

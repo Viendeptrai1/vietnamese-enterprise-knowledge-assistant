@@ -33,6 +33,38 @@ You can download and use the final trained model on [Hugging Face](https://huggi
 > [!IMPORTANT]
 > The code in this GitHub repository is actively maintained and may contain updates not reflected in the book. **Always refer to this repository for the latest version of the code.**
 
+## 🇻🇳 Vietnamese Enterprise Knowledge Assistant (Local RAG MVP)
+
+This repository includes a local-first **Vietnamese Enterprise Knowledge Assistant RAG system** built specifically for Apple Silicon (Mac M2 16GB) and local execution without external APIs or cloud dependencies.
+
+### Key Highlights
+- **Local Document Parsing:** PDF (`pymupdf`), Markdown, and DOCX (`python-docx`).
+- **Local Vector Indexing:** Persistent Qdrant vector database (`:memory:` or disk directory) with `intfloat/multilingual-e5-small`.
+- **Local Apple Silicon MLX Inference:** Grounded RAG generation using `Qwen/Qwen3.5-2B` via lazy-loaded MLX (`mlx-lm`).
+- **Clean Architecture:** Domain-Driven Design separating domain entities, infrastructure adapters, application orchestration, and CLI vertical slices.
+
+### CLI Usage
+
+Ensure dependencies are installed via Poetry (`poetry == 1.8.4` recommended):
+```bash
+poetry install
+```
+
+You can run the four core vertical slice commands directly using the CLI:
+```bash
+# 1. Ingest local documents (PDF, Markdown, DOCX)
+poetry run knowledge-assistant ingest path/to/documents
+
+# 2. Chunk and index documents into local Qdrant collection
+poetry run knowledge-assistant index path/to/documents
+
+# 3. Ask questions against the local knowledge base
+poetry run knowledge-assistant query "Quy trình làm việc và chính sách công ty là gì?" --top-k 5
+
+# 4. Run evaluation harness verification
+poetry run knowledge-assistant evaluate path/to/evaluation.jsonl
+```
+
 ## 🔗 Dependencies
 
 ### Local dependencies

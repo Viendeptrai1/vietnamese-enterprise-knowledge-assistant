@@ -1,12 +1,11 @@
 from datetime import datetime, timezone
 
 import pytest
-from pydantic import ValidationError
-
 from knowledge_assistant.domain.answers import AnswerResponse
 from knowledge_assistant.domain.chunks import DocumentChunk
 from knowledge_assistant.domain.documents import DocumentMetadata, NormalizedDocument
 from knowledge_assistant.domain.retrieval import Citation, IndexSummary, RetrievedChunk
+from pydantic import ValidationError
 
 
 def metadata() -> DocumentMetadata:

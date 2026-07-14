@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pytest
-
 from knowledge_assistant.domain.chunks import DocumentChunk
 from knowledge_assistant.domain.documents import DocumentMetadata
 from knowledge_assistant.infrastructure.vector_store.qdrant import QdrantVectorStore

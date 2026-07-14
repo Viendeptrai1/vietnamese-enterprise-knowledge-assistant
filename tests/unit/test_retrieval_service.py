@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 from typing import Sequence
 
-import pytest
-
 from knowledge_assistant.application.ingestion.chunking import Chunker
 from knowledge_assistant.application.retrieval.service import RetrievalService
 from knowledge_assistant.domain.chunks import DocumentChunk

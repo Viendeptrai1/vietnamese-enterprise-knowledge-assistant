@@ -14,7 +14,7 @@ from rich.console import Console
 
 app = typer.Typer(
     name="knowledge-assistant",
-    help="Vietnamese Enterprise Knowledge Assistant CLI based on Qwen3.5-2B and local Qdrant.",
+    help="Vietnamese Enterprise Knowledge Assistant CLI based on Qwen2.5-1.5B-Instruct-4bit and local Qdrant.",
     no_args_is_help=True,
 )
 console = Console()

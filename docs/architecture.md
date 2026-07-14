@@ -33,7 +33,7 @@ The codebase strictly enforces clean dependency boundaries across four distinct 
 - **Document Parsers (`parsers/`):** Adapters implementing `DocumentParser` (`PyMuPDFParser` for `.pdf`, `MarkdownParser` for `.md`, `DocxParser` for `.docx`, and `ParserDispatcher` for format-routing).
 - **Embedding Adapters (`embeddings/`):** `E5EmbeddingProvider` wraps `intfloat/multilingual-e5-small` (`sentence-transformers`) and applies `query: ` and `passage: ` asymmetric prefixes as required by E5 models.
 - **Vector Store Adapters (`vector_store/`):** `QdrantVectorStore` wraps local Qdrant persistence (`qdrant-client` using `:memory:` or local folder storage).
-- **Inference Adapters (`inference/`):** `MlxQwenGenerator` wraps Apple Silicon MLX (`mlx-lm` with model `Qwen/Qwen3.5-2B`). Implements lazy loading (`_ensure_loaded()`) so that CLI `--help`, static checks, or quick non-generation tasks execute in milliseconds without loading heavy model weights into RAM.
+- **Inference Adapters (`inference/`):** `MlxQwenGenerator` wraps Apple Silicon MLX (`mlx-lm` with model `mlx-community/Qwen2.5-1.5B-Instruct-4bit`). Implements lazy loading (`_ensure_loaded()`) so that CLI `--help`, static checks, or quick non-generation tasks execute in milliseconds without loading heavy model weights into RAM.
 
 ### 3. Application Layer (`src/knowledge_assistant/application/`)
 - **Use Case Orchestration (`ingestion/`, `retrieval/`, `generation/`, `evaluation/`):**
@@ -52,7 +52,7 @@ The codebase strictly enforces clean dependency boundaries across four distinct 
 
 - `QDRANT_PATH` — Local directory for Qdrant vector database storage (defaults to `:memory:` or `./data/qdrant_db`).
 - `DOCUMENT_ROOT` — Base root directory for document ingestion via REST API (defaults to `./data/documents`).
-- `MLX_MODEL_ID` — HuggingFace model ID for local MLX inference (defaults to `Qwen/Qwen3.5-2B`).
+- `MLX_MODEL_ID` — HuggingFace model ID for local MLX inference (defaults to `mlx-community/Qwen2.5-1.5B-Instruct-4bit`).
 
 ## Testing Rules & Quality Standards
 

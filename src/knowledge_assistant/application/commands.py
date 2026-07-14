@@ -27,7 +27,10 @@ class ApplicationContainer:
             "EMBEDDING_MODEL_ID", "intfloat/multilingual-e5-small"
         )
         self.vector_store_path = vector_store_path or os.environ.get("VECTOR_STORE_PATH", "data/indexes")
-        self.qwen_model_id = qwen_model_id or os.environ.get("QWEN_MODEL_ID", "Qwen/Qwen3.5-2B")
+        self.qwen_model_id = qwen_model_id or os.environ.get(
+            "QWEN_MODEL_ID", "mlx-community/Qwen2.5-1.5B-Instruct-4bit"
+        )
+
         self.mlx_cache_path = mlx_cache_path or os.environ.get("MLX_MODEL_CACHE_PATH", "data/models")
 
     def ingestion_service(self) -> IngestionService:

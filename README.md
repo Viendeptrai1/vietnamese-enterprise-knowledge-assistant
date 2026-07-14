@@ -43,7 +43,7 @@ This repository houses a clean, local-first **Vietnamese Enterprise Knowledge As
 ### Key Highlights
 - **Local Document Parsing:** Full parsing support for PDF (`pymupdf`), Markdown (`.md`), and Word (`python-docx`).
 - **Local Vector Indexing:** Persistent Qdrant vector store (`qdrant-client` using `:memory:` or local folder persistence) indexed via `intfloat/multilingual-e5-small`.
-- **Local Apple Silicon MLX Inference:** Grounded RAG generation using `Qwen/Qwen3.5-2B` via lazy-loaded MLX (`mlx-lm`).
+- **Local Apple Silicon MLX Inference:** Grounded RAG generation using `mlx-community/Qwen2.5-1.5B-Instruct-4bit` via lazy-loaded MLX (`mlx-lm`).
 - **Clean Architecture:** Domain-Driven Design separating pure domain models, infrastructure adapters, application orchestration, and CLI/API vertical slices.
 
 ### Local Setup & Quickstart

@@ -9,7 +9,7 @@ class MlxQwenGenerator(TextGenerator):
 
     def __init__(
         self,
-        model_id: str = "Qwen/Qwen3.5-2B",
+        model_id: str = "mlx-community/Qwen2.5-1.5B-Instruct-4bit",
         model_cache_path: str | None = None,
         max_tokens: int = 512,
         temperature: float = 0.2,

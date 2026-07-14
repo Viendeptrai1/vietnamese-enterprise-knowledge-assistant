@@ -5,7 +5,7 @@
 This repository implements a **local-first, Apple Silicon (Mac M2 16GB) optimized Vietnamese Enterprise Knowledge Assistant RAG system** cleanly structured with Domain-Driven Design (DDD).
 
 - **Current Status:** Phase 10 (Production MVP Complete).
-- **Primary Tech Stack:** Python 3.11, Poetry (`poetry == 1.8.4`), Pydantic v2, Typer, FastAPI, Qdrant (`qdrant-client`), Sentence Transformers (`intfloat/multilingual-e5-small`), Apple Silicon MLX (`mlx-lm` with `Qwen/Qwen3.5-2B`).
+- **Primary Tech Stack:** Python 3.11, Poetry (`poetry == 1.8.4`), Pydantic v2, Typer, FastAPI, Qdrant (`qdrant-client`), Sentence Transformers (`intfloat/multilingual-e5-small`), Apple Silicon MLX (`mlx-lm` with `mlx-community/Qwen2.5-1.5B-Instruct-4bit`).
 
 ## Core Commands
 

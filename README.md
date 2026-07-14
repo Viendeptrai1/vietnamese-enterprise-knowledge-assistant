@@ -35,39 +35,57 @@ You can download and use the final trained model on [Hugging Face](https://huggi
 
 ## 🇻🇳 Vietnamese Enterprise Knowledge Assistant (Local RAG MVP)
 
-This repository includes a local-first **Vietnamese Enterprise Knowledge Assistant RAG system** built specifically for Apple Silicon (Mac M2 16GB) and local execution without external APIs or cloud dependencies.
+This repository houses a clean, local-first **Vietnamese Enterprise Knowledge Assistant RAG system** designed from the ground up using Domain-Driven Design (DDD). Built specifically for Apple Silicon (Mac M2 16GB), it operates entirely offline without external API keys or cloud infrastructure.
+
+> [!NOTE]
+> Looking for the original book code (*LLM Engineer's Handbook* / AWS TwinLlama-3.1-8B-DPO)? Please see the [Legacy LLM Twin Project Structure](#legacy-llm-twin-project-structure) section below.
 
 ### Key Highlights
-- **Local Document Parsing:** PDF (`pymupdf`), Markdown, and DOCX (`python-docx`).
-- **Local Vector Indexing:** Persistent Qdrant vector database (`:memory:` or disk directory) with `intfloat/multilingual-e5-small`.
+- **Local Document Parsing:** Full parsing support for PDF (`pymupdf`), Markdown (`.md`), and Word (`python-docx`).
+- **Local Vector Indexing:** Persistent Qdrant vector store (`qdrant-client` using `:memory:` or local folder persistence) indexed via `intfloat/multilingual-e5-small`.
 - **Local Apple Silicon MLX Inference:** Grounded RAG generation using `Qwen/Qwen3.5-2B` via lazy-loaded MLX (`mlx-lm`).
-- **Clean Architecture:** Domain-Driven Design separating domain entities, infrastructure adapters, application orchestration, and CLI vertical slices.
+- **Clean Architecture:** Domain-Driven Design separating pure domain models, infrastructure adapters, application orchestration, and CLI/API vertical slices.
+
+### Local Setup & Quickstart
+
+Ensure you have Python 3.11 and Poetry installed (`poetry == 1.8.4` recommended):
+```bash
+# 1. Install all required dependencies
+poetry install
+
+# 2. Run the fast local test suite (0 network access, 0 model loading)
+poetry run pytest -q
+```
+
+#### Document Directory Layout
+Place your enterprise documents inside a directory such as `data/documents/`:
+```
+data/documents/
+├── chinh_sach_nghi_phep.pdf
+├── quy_trinh_onboarding.md
+└── bieu_mau_bao_cao.docx
+```
 
 ### CLI Usage
 
-Ensure dependencies are installed via Poetry (`poetry == 1.8.4` recommended):
+You can run the four core vertical slice commands directly:
 ```bash
-poetry install
-```
+# 1. Ingest documents into normalized domain models
+poetry run knowledge-assistant ingest data/documents
 
-You can run the four core vertical slice commands directly using the CLI:
-```bash
-# 1. Ingest local documents (PDF, Markdown, DOCX)
-poetry run knowledge-assistant ingest path/to/documents
-
-# 2. Chunk and index documents into local Qdrant collection
-poetry run knowledge-assistant index path/to/documents
+# 2. Chunk and index documents into local Qdrant vector collection
+poetry run knowledge-assistant index data/documents
 
 # 3. Ask questions against the local knowledge base
-poetry run knowledge-assistant query "Quy trình làm việc và chính sách công ty là gì?" --top-k 5
+poetry run knowledge-assistant query "Quy trình nghỉ phép của công ty như thế nào?" --top-k 5
 
 # 4. Run evaluation harness verification
-poetry run knowledge-assistant evaluate path/to/evaluation.jsonl
+poetry run knowledge-assistant evaluate tests/fixtures/evaluation/questions.jsonl --top-k 5
 ```
 
 ### FastAPI Service Usage
 
-You can start the local FastAPI server using `uvicorn`:
+Start the local REST API server using `uvicorn`:
 ```bash
 poetry run uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
 ```
@@ -76,6 +94,24 @@ Available REST endpoints:
 - `GET /health` — Check system and model readiness (`{"status": "ok", "model_ready": true}`).
 - `POST /documents/ingest` — Ingest a document or directory under `DOCUMENT_ROOT` (`{"path": "sample.md"}`).
 - `POST /query` — Query the RAG engine (`{"question": "Quy trình nghỉ phép?", "top_k": 5}`).
+
+### Evaluation Harness & Accuracy Tracking
+
+Evaluate RAG `Hit@K` and latency performance against validation datasets:
+```bash
+poetry run knowledge-assistant evaluate tests/fixtures/evaluation/questions.jsonl --top-k 5 --json
+```
+
+### Known Limitations (MVP Phase)
+- **Apple Silicon Requirement:** `MlxQwenGenerator` requires macOS and Apple Silicon (`mlx-lm`). For non-macOS environments, swap the inference adapter with a compatible HuggingFace or vLLM adapter.
+- **Local Single-Node Vector Store:** Qdrant runs in embedded local mode (`:memory:` or local folder storage).
+- **Supported Formats:** Currently limited to `.pdf`, `.md`, and `.docx`. Complex OCR is out of scope for MVP.
+
+---
+
+## Legacy LLM Twin Project Structure
+
+The original code accompanying the *LLM Engineer's Handbook* (AWS SageMaker, MongoDB, ZenML, TwinLlama-3.1-8B-DPO) remains preserved within the existing subdirectories (`src/db/`, `src/llm_engineering/`, `steps/`, `pipelines/`).
 
 ## 🔗 Dependencies
 

@@ -105,16 +105,20 @@ def query(
 @app.command()
 def evaluate(
     path: Annotated[Path, typer.Argument(help="Path to evaluation dataset JSONL file.")],
+    top_k: Annotated[int, typer.Option("--top-k", help="Number of top chunks to retrieve for hit@k.")] = 5,
     json_output: Annotated[bool, typer.Option("--json", help="Output summary in JSON format.")] = False,
 ) -> None:
     """Run evaluation harness against dataset path."""
     try:
-        result = run_evaluate(path, container=get_container())
+        result = run_evaluate(path, top_k=top_k, container=get_container())
         if json_output:
             console.print(json.dumps(result, ensure_ascii=False))
         else:
             console.print(f"[bold green]Evaluation Status:[/bold green] {result['status']}")
             console.print(f"Dataset path: {result['dataset_path']}")
+            console.print(f"Total questions evaluated: {result.get('total_questions', 0)}")
+            console.print(f"Hit@{top_k} rate: [bold cyan]{result.get('hit_at_k_rate', 0.0):.2%}[/bold cyan]")
+            console.print(f"Average latency: [dim]{result.get('average_latency_ms', 0.0):.2f} ms[/dim]")
     except (FileNotFoundError, ValueError) as exc:
         console.print(f"[red]Error:[/red] {exc}")
         raise typer.Exit(code=1) from exc

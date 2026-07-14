@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from knowledge_assistant.application.evaluation.service import EvaluationService
 from knowledge_assistant.application.generation.service import GenerationService
 from knowledge_assistant.application.ingestion.chunking import Chunker
 from knowledge_assistant.application.ingestion.service import IngestionService
@@ -49,6 +50,9 @@ class ApplicationContainer:
             model_cache_path=self.mlx_cache_path,
         )
         return GenerationService(retrieval_service=retrieval, generator=generator)
+
+    def evaluation_service(self) -> EvaluationService:
+        return EvaluationService(generation_service=self.generation_service())
 
 
 def run_ingest(path: Path, container: ApplicationContainer | None = None) -> dict[str, Any]:
@@ -114,12 +118,19 @@ def run_query(question: str, top_k: int = 5, container: ApplicationContainer | N
     }
 
 
-def run_evaluate(path: Path, container: ApplicationContainer | None = None) -> dict[str, Any]:
+def run_evaluate(path: Path, top_k: int = 5, container: ApplicationContainer | None = None) -> dict[str, Any]:
     """Run evaluation harness against dataset path."""
     if not path.exists():
         raise FileNotFoundError(f"Evaluation dataset path does not exist: {path}")
+    if container is None:
+        container = ApplicationContainer()
+    service = container.evaluation_service()
+    summary = service.run(path, top_k=top_k)
     return {
         "dataset_path": str(path),
-        "status": "ready",
-        "records_processed": 0,
+        "status": "completed",
+        "total_questions": summary.total_questions,
+        "hit_at_k_rate": summary.hit_at_k_rate,
+        "average_latency_ms": summary.average_latency_ms,
+        "records_processed": summary.total_questions,
     }

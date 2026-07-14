@@ -160,6 +160,12 @@ def test_cli_index_valid_path_and_json_option(runner: CliRunner, fake_container:
 
 
 def test_cli_evaluate_valid_path(runner: CliRunner, fake_container: FakeApplicationContainer) -> None:
-    result = runner.invoke(app, ["evaluate", str(fake_container.root_path)])
+    eval_file = fake_container.root_path / "eval.jsonl"
+    eval_file.write_text(
+        '{"question": "Hỏi thông tin gì?", "expected_source": "sample.md"}\n',
+        encoding="utf-8",
+    )
+    result = runner.invoke(app, ["evaluate", str(eval_file)])
     assert result.exit_code == 0
     assert "Evaluation Status" in result.output
+    assert "Hit@5 rate:" in result.output

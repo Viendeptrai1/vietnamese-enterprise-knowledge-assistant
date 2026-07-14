@@ -65,6 +65,18 @@ poetry run knowledge-assistant query "Quy trình làm việc và chính sách c�
 poetry run knowledge-assistant evaluate path/to/evaluation.jsonl
 ```
 
+### FastAPI Service Usage
+
+You can start the local FastAPI server using `uvicorn`:
+```bash
+poetry run uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Available REST endpoints:
+- `GET /health` — Check system and model readiness (`{"status": "ok", "model_ready": true}`).
+- `POST /documents/ingest` — Ingest a document or directory under `DOCUMENT_ROOT` (`{"path": "sample.md"}`).
+- `POST /query` — Query the RAG engine (`{"question": "Quy trình nghỉ phép?", "top_k": 5}`).
+
 ## 🔗 Dependencies
 
 ### Local dependencies

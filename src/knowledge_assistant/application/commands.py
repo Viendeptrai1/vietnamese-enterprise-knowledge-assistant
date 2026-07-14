@@ -55,8 +55,8 @@ def run_ingest(path: Path, container: ApplicationContainer | None = None) -> dic
     """Ingest documents from path into normalized models."""
     if not path.exists():
         raise FileNotFoundError(f"Document root path does not exist: {path}")
-    if not path.is_dir():
-        raise ValueError(f"Document root path is not valid directory: {path}")
+    if not path.is_dir() and not path.is_file():
+        raise ValueError(f"Document root path is not valid: {path}")
     if container is None:
         container = ApplicationContainer()
     service = container.ingestion_service()
@@ -74,8 +74,8 @@ def run_index(path: Path, container: ApplicationContainer | None = None) -> dict
     """Ingest documents from path and index chunks into vector store."""
     if not path.exists():
         raise FileNotFoundError(f"Document root path does not exist: {path}")
-    if not path.is_dir():
-        raise ValueError(f"Document root path is not valid directory: {path}")
+    if not path.is_dir() and not path.is_file():
+        raise ValueError(f"Document root path is not valid: {path}")
     if container is None:
         container = ApplicationContainer()
     ingest_service = container.ingestion_service()

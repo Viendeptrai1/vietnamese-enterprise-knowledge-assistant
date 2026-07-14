@@ -19,17 +19,20 @@ class IngestionService:
 
     def ingest(self, root: Path) -> list[NormalizedDocument]:
         document_root = root.resolve()
-        if not document_root.is_dir():
-            raise ValueError(f"Document root does not exist or is not a directory: {root}")
+        if not document_root.exists() or (not document_root.is_dir() and not document_root.is_file()):
+            raise ValueError(f"Document root does not exist or is not valid: {root}")
 
         self.errors = []
         documents: list[NormalizedDocument] = []
-        for path in sorted(document_root.rglob("*")):
+        paths = [document_root] if document_root.is_file() else sorted(document_root.rglob("*"))
+        base_dir = document_root.parent if document_root.is_file() else document_root
+
+        for path in paths:
             if not path.is_file():
                 continue
             try:
                 resolved_path = path.resolve()
-                relative_path = resolved_path.relative_to(document_root)
+                relative_path = resolved_path.relative_to(base_dir)
                 parser = self._dispatcher.for_path(resolved_path)
                 documents.extend(
                     self._with_relative_source_path(document, relative_path) for document in parser.parse(resolved_path)
